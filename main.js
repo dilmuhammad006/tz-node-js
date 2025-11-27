@@ -43,14 +43,8 @@ app.get("/", async (_, res) => {
 
     console.log("Part 1:", part1 || "topilmadi");
 
-    console.log("Part 2 kutilyapti...");
-    let attempts = 0;
 
-    while (!part2 && attempts < 20) {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      attempts++;
-      console.log(`Urinish: ${attempts}`);
-    }
+
 
     if (!part2) {
       console.log("Part 2 kelmadi\n");
