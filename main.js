@@ -10,26 +10,26 @@ const WEBHOOK_URL = "https://tz-node-js.onrender.com/webhook";
 let part1 = "";
 let part2 = "";
 
+// Webhook
 app.post("/webhook", (req, res) => {
-  console.log("\nWEBHOOKGA MA'LUMOT KELDI!");
+  console.log("\n--- WEBHOOK KELDI ---");
   console.log("Body:", req.body);
 
   part2 = req.body.part2 || req.body.code_part2 || req.body.code || "";
 
-  if (part2) {
-    console.log("PART 2 QABUL QILINDI:", part2);
-  } else {
-    console.log("PART 2 topilmadi, API boshqa maydon yuboryapti");
-  }
+  console.log("Part 2:", part2 || "topilmadi");
+  console.log("----------------------\n");
 
   res.status(200).json({ status: "received", part2 });
 });
 
+// Root request
 app.get("/", async (_, res) => {
-  try {
-    console.log("\n/ ga so'rov tushdi — Jarayon boshlandi...");
+  console.log("\n--- / REQUEST KELDI ---");
 
-    console.log("\n1-qadam: API ga POST yuborilyapti...");
+  try {
+    console.log("BASE_URL ga so‘rov yuborildi");
+
     const response = await axios.post(BASE_URL, {
       msg: "Salom",
       url: WEBHOOK_URL,
@@ -41,48 +41,43 @@ app.get("/", async (_, res) => {
       response.data.code ||
       "";
 
-    console.log("ART 1 qabul qilindi:", part1);
+    console.log("Part 1:", part1 || "topilmadi");
 
-    console.log("\n2-qadam: PART 2 webhook orqali kelishini kutyapmiz...");
-
+    console.log("Part 2 kutilyapti...");
     let attempts = 0;
+
     while (!part2 && attempts < 20) {
       await new Promise((resolve) => setTimeout(resolve, 500));
       attempts++;
-      console.log(`⏱Kutilyapti... (${attempts}/20)`);
+      console.log(`Urinish: ${attempts}`);
     }
 
     if (!part2) {
-      console.log("PART 2 kelmadi. Jarayon to'xtadi.\n");
+      console.log("Part 2 kelmadi\n");
       return res.status(408).json({
         error: "Part 2 kelmadi",
         part1,
-        message: "Webhook ishlamayotgan bo'lishi mumkin",
       });
     }
 
-    console.log("PART 2 topildi:", part2);
-
     const connected = part1 + part2;
-    console.log("\n3-qadam: PART 1 + PART 2 birlashtirildi:");
-    console.log("Yakuniy CODE:", connected);
+    console.log("Yakuniy code:", connected);
 
-    console.log("\n4-qadam: Yakuniy GET yuborilyapti...");
-    const finalResponse = await axios.get(`${BASE_URL}?code=${connected}`);
+    const result = await axios.get(`${BASE_URL}?code=${connected}`);
 
-    console.log("API javobi:", finalResponse.data);
+    console.log("Server javobi:", result.data);
+    console.log("-------------------------\n");
 
     res.status(200).json({
       success: true,
-      message: finalResponse.data.message || finalResponse.data,
+      message: result.data.message || result.data,
       code: connected,
       part1,
       part2,
-      status: "OK — hamma jarayon muvaffaqiyatli bajarildi",
     });
   } catch (error) {
-    console.log("\nXATOLIK YUZ BERDI:");
-    console.log(error);
+    console.log("Xatolik:", error.message);
+    console.log("Response:", error.response?.data);
 
     res.status(500).json({
       error: error.message,
@@ -91,8 +86,8 @@ app.get("/", async (_, res) => {
   }
 });
 
+// Server start
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`\nSERVER ISHGA TUSHDI: http://localhost:${PORT}`);
-  console.log(`WEBHOOK URL: ${WEBHOOK_URL}\n`);
+  console.log("Server ishlayapti");
 });
