@@ -81,7 +81,6 @@ app.get("/", async (_, res) => {
 });
 
 // Server start
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(9233, () => {
   console.log("Server ishlayapti");
 });
